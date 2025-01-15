@@ -34,16 +34,16 @@ static diff_drive_lib::CircularBuffer<float> battery_buffer_(
     BATTERY_BUFFER_SIZE);
 static bool publish_battery = false;
 
-static leo_msgs::WheelOdom wheel_odom;
-static ros::Publisher wheel_odom_pub("firmware/wheel_odom", &wheel_odom);
-static leo_msgs::WheelOdomMecanum wheel_odom_mecanum;
-static ros::Publisher wheel_odom_mecanum_pub("firmware/wheel_odom_mecanum",
-                                             &wheel_odom_mecanum);
-static bool publish_wheel_odom = false;
+// static leo_msgs::WheelOdom wheel_odom;
+// static ros::Publisher wheel_odom_pub("firmware/wheel_odom", &wheel_odom);
+// static leo_msgs::WheelOdomMecanum wheel_odom_mecanum;
+// static ros::Publisher wheel_odom_mecanum_pub("firmware/wheel_odom_mecanum",
+//                                              &wheel_odom_mecanum);
+// static bool publish_wheel_odom = false;
 
-static leo_msgs::WheelStates wheel_states;
-static ros::Publisher wheel_states_pub("firmware/wheel_states", &wheel_states);
-static bool publish_wheel_states = false;
+// static leo_msgs::WheelStates wheel_states;
+// static ros::Publisher wheel_states_pub("firmware/wheel_states", &wheel_states);
+// static bool publish_wheel_states = false;
 
 static leo_msgs::Imu imu;
 static ros::Publisher imu_pub("firmware/imu", &imu);
@@ -51,25 +51,25 @@ static bool publish_imu = false;
 
 static bool reset_request = false;
 
-MotorController MotA(MOT_A_CONFIG);
-MotorController MotB(MOT_B_CONFIG);
-MotorController MotC(MOT_C_CONFIG);
-MotorController MotD(MOT_D_CONFIG);
+// MotorController MotA(MOT_A_CONFIG);
+// MotorController MotB(MOT_B_CONFIG);
+// MotorController MotC(MOT_C_CONFIG);
+// MotorController MotD(MOT_D_CONFIG);
 
-static diff_drive_lib::RobotController *controller;
+// static diff_drive_lib::RobotController *controller;
 static ImuReceiver imu_receiver(&IMU_I2C);
 
 Parameters params;
 
-void cmdVelCallback(const geometry_msgs::Twist &msg) {
-  controller->setSpeed(msg.linear.x, msg.linear.y, msg.angular.z);
-}
+// void cmdVelCallback(const geometry_msgs::Twist &msg) {
+//   controller->setSpeed(msg.linear.x, msg.linear.y, msg.angular.z);
+// }
 
-void resetOdometryCallback(const std_srvs::TriggerRequest &req,
-                           std_srvs::TriggerResponse &res) {
-  controller->resetOdom();
-  res.success = true;
-}
+// void resetOdometryCallback(const std_srvs::TriggerRequest &req,
+//                            std_srvs::TriggerResponse &res) {
+//   controller->resetOdom();
+//   res.success = true;
+// }
 
 void resetBoardCallback(const std_srvs::TriggerRequest &req,
                         std_srvs::TriggerResponse &res) {
@@ -90,53 +90,53 @@ void getBoardTypeCallback(const std_srvs::TriggerRequest &req,
   res.success = true;
 }
 
-struct WheelWrapper {
-  explicit WheelWrapper(diff_drive_lib::WheelController &wheel,
-                        std::string wheel_name)
-      : wheel_(wheel),
-        cmd_pwm_topic("firmware/wheel_" + wheel_name + "/cmd_pwm_duty"),
-        cmd_vel_topic("firmware/wheel_" + wheel_name + "/cmd_velocity"),
-        cmd_pwm_sub_(cmd_pwm_topic.c_str(), &WheelWrapper::cmdPWMDutyCallback,
-                     this),
-        cmd_vel_sub_(cmd_vel_topic.c_str(), &WheelWrapper::cmdVelCallback,
-                     this) {}
+// struct WheelWrapper {
+//   explicit WheelWrapper(diff_drive_lib::WheelController &wheel,
+//                         std::string wheel_name)
+//       : wheel_(wheel),
+//         cmd_pwm_topic("firmware/wheel_" + wheel_name + "/cmd_pwm_duty"),
+//         cmd_vel_topic("firmware/wheel_" + wheel_name + "/cmd_velocity"),
+//         cmd_pwm_sub_(cmd_pwm_topic.c_str(), &WheelWrapper::cmdPWMDutyCallback,
+//                      this),
+//         cmd_vel_sub_(cmd_vel_topic.c_str(), &WheelWrapper::cmdVelCallback,
+//                      this) {}
 
-  void initROS() {
-    nh.subscribe(cmd_pwm_sub_);
-    nh.subscribe(cmd_vel_sub_);
-  }
+  // void initROS() {
+  //   nh.subscribe(cmd_pwm_sub_);
+  //   nh.subscribe(cmd_vel_sub_);
+  // }
 
-  void cmdPWMDutyCallback(const std_msgs::Float32 &msg) {
-    wheel_.disable();
-    wheel_.motor.setPWMDutyCycle(msg.data);
-  }
+  // void cmdPWMDutyCallback(const std_msgs::Float32 &msg) {
+  //   wheel_.disable();
+  //   wheel_.motor.setPWMDutyCycle(msg.data);
+  // }
 
-  void cmdVelCallback(const std_msgs::Float32 &msg) {
-    wheel_.enable();
-    wheel_.setTargetVelocity(msg.data);
-  }
+  // void cmdVelCallback(const std_msgs::Float32 &msg) {
+  //   wheel_.enable();
+  //   wheel_.setTargetVelocity(msg.data);
+  // }
 
- private:
-  diff_drive_lib::WheelController &wheel_;
-  std::string cmd_pwm_topic;
-  std::string cmd_vel_topic;
-  ros::Subscriber<std_msgs::Float32, WheelWrapper> cmd_pwm_sub_;
-  ros::Subscriber<std_msgs::Float32, WheelWrapper> cmd_vel_sub_;
-};
+//  private:
+//   diff_drive_lib::WheelController &wheel_;
+//   std::string cmd_pwm_topic;
+//   std::string cmd_vel_topic;
+//   ros::Subscriber<std_msgs::Float32, WheelWrapper> cmd_pwm_sub_;
+//   ros::Subscriber<std_msgs::Float32, WheelWrapper> cmd_vel_sub_;
+// };
 
-static WheelWrapper *wheel_FL_wrapper;
-static WheelWrapper *wheel_RL_wrapper;
-static WheelWrapper *wheel_FR_wrapper;
-static WheelWrapper *wheel_RR_wrapper;
+// static WheelWrapper *wheel_FL_wrapper;
+// static WheelWrapper *wheel_RL_wrapper;
+// static WheelWrapper *wheel_FR_wrapper;
+// static WheelWrapper *wheel_RR_wrapper;
 
-static ros::Subscriber<geometry_msgs::Twist> twist_sub("cmd_vel",
-                                                       &cmdVelCallback);
+// static ros::Subscriber<geometry_msgs::Twist> twist_sub("cmd_vel",
+//                                                        &cmdVelCallback);
 
 using TriggerService =
     ros::ServiceServer<std_srvs::TriggerRequest, std_srvs::TriggerResponse>;
 
-static TriggerService reset_odometry_srv("firmware/reset_odometry",
-                                         &resetOdometryCallback);
+// static TriggerService reset_odometry_srv("firmware/reset_odometry",
+//                                          &resetOdometryCallback);
 static TriggerService firmware_version_srv("firmware/get_firmware_version",
                                            &getFirmwareVersionCallback);
 static TriggerService board_type_srv("firmware/get_board_type",
@@ -148,27 +148,27 @@ void initROS() {
   // Publishers
   nh.advertise(battery_pub);
   nh.advertise(battery_averaged_pub);
-  if (params.mecanum_wheels) {
-    nh.advertise(wheel_odom_mecanum_pub);
-  } else {
-    nh.advertise(wheel_odom_pub);
-  }
-  nh.advertise(wheel_states_pub);
+  // if (params.mecanum_wheels) {
+  //   nh.advertise(wheel_odom_mecanum_pub);
+  // } else {
+  //   nh.advertise(wheel_odom_pub);
+  // }
+  // nh.advertise(wheel_states_pub);
   nh.advertise(imu_pub);
 
   // Subscribers
-  nh.subscribe(twist_sub);
+  // nh.subscribe(twist_sub);
 
   // Services
-  nh.advertiseService(reset_odometry_srv);
+  // nh.advertiseService(reset_odometry_srv);
   nh.advertiseService(firmware_version_srv);
   nh.advertiseService(board_type_srv);
   nh.advertiseService(reset_board_srv);
 
-  wheel_FL_wrapper->initROS();
-  wheel_RL_wrapper->initROS();
-  wheel_FR_wrapper->initROS();
-  wheel_RR_wrapper->initROS();
+  // wheel_FL_wrapper->initROS();
+  // wheel_RL_wrapper->initROS();
+  // wheel_FR_wrapper->initROS();
+  // wheel_RR_wrapper->initROS();
 }
 
 void setup() {
@@ -181,23 +181,23 @@ void setup() {
   }
 
   params.load(nh);
-  if (params.mecanum_wheels) {
-    controller = new diff_drive_lib::MecanumController(ROBOT_CONFIG);
-  } else {
-    controller = new diff_drive_lib::DiffDriveController(ROBOT_CONFIG);
-  }
+  // if (params.mecanum_wheels) {
+  //   controller = new diff_drive_lib::MecanumController(ROBOT_CONFIG);
+  // } else {
+  //   controller = new diff_drive_lib::DiffDriveController(ROBOT_CONFIG);
+  // }
 
-  wheel_FL_wrapper = new WheelWrapper(controller->wheel_FL, "FL");
-  wheel_RL_wrapper = new WheelWrapper(controller->wheel_RL, "RL");
-  wheel_FR_wrapper = new WheelWrapper(controller->wheel_FR, "FR");
-  wheel_RR_wrapper = new WheelWrapper(controller->wheel_RR, "RR");
+  // wheel_FL_wrapper = new WheelWrapper(controller->wheel_FL, "FL");
+  // wheel_RL_wrapper = new WheelWrapper(controller->wheel_RL, "RL");
+  // wheel_FR_wrapper = new WheelWrapper(controller->wheel_FR, "FR");
+  // wheel_RR_wrapper = new WheelWrapper(controller->wheel_RR, "RR");
 
   initROS();
 
   imu_receiver.init();
 
   // Initialize Robot Controller
-  controller->init(params);
+  // controller->init(params);
 
   configured = true;
 }
@@ -213,19 +213,19 @@ void loop() {
     publish_battery = false;
   }
 
-  if (publish_wheel_odom) {
-    if (params.mecanum_wheels) {
-      wheel_odom_mecanum_pub.publish(&wheel_odom_mecanum);
-    } else {
-      wheel_odom_pub.publish(&wheel_odom);
-    }
-    publish_wheel_odom = false;
-  }
+  // if (publish_wheel_odom) {
+  //   if (params.mecanum_wheels) {
+  //     wheel_odom_mecanum_pub.publish(&wheel_odom_mecanum);
+  //   } else {
+  //     wheel_odom_pub.publish(&wheel_odom);
+  //   }
+  //   publish_wheel_odom = false;
+  // }
 
-  if (publish_wheel_states) {
-    wheel_states_pub.publish(&wheel_states);
-    publish_wheel_states = false;
-  }
+  // if (publish_wheel_states) {
+  //   wheel_states_pub.publish(&wheel_states);
+  //   publish_wheel_states = false;
+  // }
 
   if (publish_imu) {
     imu_pub.publish(&imu);
@@ -257,7 +257,7 @@ void update() {
 
   if (!configured) return;
 
-  controller->update(UPDATE_PERIOD);
+  // controller->update(UPDATE_PERIOD);
 
   if (!nh.connected()) return;
 
@@ -273,41 +273,41 @@ void update() {
     publish_battery = true;
   }
 
-  if (cnt % JOINTS_PUB_PERIOD == 0 && !publish_wheel_states) {
-    auto dd_wheel_states = controller->getWheelStates();
+  // if (cnt % JOINTS_PUB_PERIOD == 0 && !publish_wheel_states) {
+  //   auto dd_wheel_states = controller->getWheelStates();
 
-    wheel_states.stamp = nh.now();
-    for (size_t i = 0; i < 4; i++) {
-      wheel_states.position[i] = dd_wheel_states.position[i];
-      wheel_states.velocity[i] = dd_wheel_states.velocity[i];
-      wheel_states.torque[i] = dd_wheel_states.torque[i];
-      wheel_states.pwm_duty_cycle[i] = dd_wheel_states.pwm_duty_cycle[i];
-    }
+  //   wheel_states.stamp = nh.now();
+  //   for (size_t i = 0; i < 4; i++) {
+  //     wheel_states.position[i] = dd_wheel_states.position[i];
+  //     wheel_states.velocity[i] = dd_wheel_states.velocity[i];
+  //     wheel_states.torque[i] = dd_wheel_states.torque[i];
+  //     wheel_states.pwm_duty_cycle[i] = dd_wheel_states.pwm_duty_cycle[i];
+  //   }
 
-    publish_wheel_states = true;
-  }
+  //   publish_wheel_states = true;
+  // }
 
-  if (cnt % ODOM_PUB_PERIOD == 0 && !publish_wheel_odom) {
-    auto dd_odom = controller->getOdom();
+  // if (cnt % ODOM_PUB_PERIOD == 0 && !publish_wheel_odom) {
+  //   auto dd_odom = controller->getOdom();
 
-    if (params.mecanum_wheels) {
-      wheel_odom_mecanum.stamp = nh.now();
-      wheel_odom_mecanum.velocity_lin_x = dd_odom.velocity_lin_x;
-      wheel_odom_mecanum.velocity_lin_y = dd_odom.velocity_lin_y;
-      wheel_odom_mecanum.velocity_ang = dd_odom.velocity_ang;
-      wheel_odom_mecanum.pose_x = dd_odom.pose_x;
-      wheel_odom_mecanum.pose_y = dd_odom.pose_y;
-      wheel_odom_mecanum.pose_yaw = dd_odom.pose_yaw;
-    } else {
-      wheel_odom.stamp = nh.now();
-      wheel_odom.velocity_lin = dd_odom.velocity_lin_x;
-      wheel_odom.velocity_ang = dd_odom.velocity_ang;
-      wheel_odom.pose_x = dd_odom.pose_x;
-      wheel_odom.pose_y = dd_odom.pose_y;
-      wheel_odom.pose_yaw = dd_odom.pose_yaw;
-    }
-    publish_wheel_odom = true;
-  }
+  //   if (params.mecanum_wheels) {
+  //     wheel_odom_mecanum.stamp = nh.now();
+  //     wheel_odom_mecanum.velocity_lin_x = dd_odom.velocity_lin_x;
+  //     wheel_odom_mecanum.velocity_lin_y = dd_odom.velocity_lin_y;
+  //     wheel_odom_mecanum.velocity_ang = dd_odom.velocity_ang;
+  //     wheel_odom_mecanum.pose_x = dd_odom.pose_x;
+  //     wheel_odom_mecanum.pose_y = dd_odom.pose_y;
+  //     wheel_odom_mecanum.pose_yaw = dd_odom.pose_yaw;
+  //   } else {
+  //     wheel_odom.stamp = nh.now();
+  //     wheel_odom.velocity_lin = dd_odom.velocity_lin_x;
+  //     wheel_odom.velocity_ang = dd_odom.velocity_ang;
+  //     wheel_odom.pose_x = dd_odom.pose_x;
+  //     wheel_odom.pose_y = dd_odom.pose_y;
+  //     wheel_odom.pose_yaw = dd_odom.pose_yaw;
+  //   }
+  //   publish_wheel_odom = true;
+  // }
 
   if (cnt % IMU_PUB_PERIOD == 0 && !publish_imu) {
     imu_receiver.update();
